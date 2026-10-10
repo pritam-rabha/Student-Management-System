@@ -331,7 +331,7 @@ Records are stored in `data/students.json` (or `$DATA_DIR/students.json`):
 
     {
 
-      "student_id": "MCA26001",
+      "student_id": "Y25271054",
 
       "full_name": "Aarav Sharma",
 
