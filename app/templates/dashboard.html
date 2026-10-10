@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% from "_macros.html" import stat %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Dashboard</h1>
+    <p class="page-sub">Overview of enrolment and academic performance.</p>
+  </div>
+  <a class="btn btn-primary" href="{{ url_for('students.create') }}">Add student</a>
+</div>
+
+{% if summary.total == 0 %}
+<section class="panel empty-state">
+  <h2 class="h5">No student records yet</h2>
+  <p class="text-secondary">Add the first student to start seeing statistics and charts here.</p>
+  <a class="btn btn-primary" href="{{ url_for('students.create') }}">Add student</a>
+</section>
+{% else %}
+<div class="stat-row">
+  {{ stat("Total students", summary.total, summary.by_course|length ~ " courses, " ~ summary.by_department|length ~ " departments") }}
+  {{ stat("Average marks", summary.average|fmt_marks if summary.average is not none else "No marks", summary.graded ~ " of " ~ summary.total ~ " students graded") }}
+  {{ stat("Highest marks", summary.highest|fmt_marks if summary.highest is not none else "No marks",
+          (summary.toppers|map(attribute='full_name')|join(', ')) if summary.toppers else None) }}
+  {{ stat("Lowest marks", summary.lowest|fmt_marks if summary.lowest is not none else "No marks") }}
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-lg-6">
+    <section class="panel h-100">
+      <h2 class="panel-title">Students by course</h2>
+      <div class="chart-box"><canvas id="chart-course" role="img" aria-label="Bar chart of student counts by course"></canvas></div>
+    </section>
+  </div>
+  <div class="col-lg-6">
+    <section class="panel h-100">
+      <h2 class="panel-title">Students by department</h2>
+      <div class="chart-box"><canvas id="chart-department" role="img" aria-label="Bar chart of student counts by department"></canvas></div>
+    </section>
+  </div>
+  <div class="col-lg-6">
+    <section class="panel h-100">
+      <h2 class="panel-title">Students by semester</h2>
+      <div class="chart-box"><canvas id="chart-semester" role="img" aria-label="Bar chart of student counts by semester"></canvas></div>
+    </section>
+  </div>
+  <div class="col-lg-6">
+    <section class="panel h-100">
+      <h2 class="panel-title">Marks distribution</h2>
+      <div class="chart-box"><canvas id="chart-bands" role="img" aria-label="Bar chart of student counts by marks band"></canvas></div>
+    </section>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-xl-8">
+    <section class="panel h-100">
+      <div class="panel-head">
+        <h2 class="panel-title mb-0">Recently added students</h2>
+        <a href="{{ url_for('students.list_students') }}" class="small">View all students</a>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle data-table">
+          <caption class="visually-hidden">Most recently added students</caption>
+          <thead><tr><th scope="col">ID</th><th scope="col">Name</th><th scope="col">Course</th><th scope="col">Semester</th><th scope="col" class="text-end">Marks</th></tr></thead>
+          <tbody>
+          {% for s in recent %}
+            <tr>
+              <td>{{ s.student_id }}</td>
+              <td><a href="{{ url_for('students.detail', student_id=s.student_id) }}">{{ s.full_name }}</a></td>
+              <td>{{ s.course }}</td>
+              <td>{{ s.semester }}</td>
+              <td class="text-end">{{ s.marks|fmt_marks if s.marks is not none else '-' }}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+  <div class="col-xl-4">
+    <section class="panel h-100">
+      <h2 class="panel-title">Course statistics</h2>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle data-table">
+          <caption class="visually-hidden">Student count and average marks by course</caption>
+          <thead><tr><th scope="col">Course</th><th scope="col" class="text-end">Students</th><th scope="col" class="text-end">Average</th></tr></thead>
+          <tbody>
+          {% for r in summary.by_course %}
+            <tr><td>{{ r.name }}</td><td class="text-end">{{ r.count }}</td><td class="text-end">{{ r.average|fmt_marks if r.average is not none else '-' }}</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script type="application/json" id="chart-data">{{ chart_data|tojson }}</script>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if summary.total %}
+<script src="{{ url_for('static', filename='vendor/chartjs/chart.umd.js') }}"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endif %}
+{% endblock %}

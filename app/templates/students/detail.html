@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% from "_macros.html" import delete_button %}
+{% block title %}{{ student.full_name }}{% endblock %}
+{% block content %}
+<nav aria-label="Breadcrumb" class="mb-2">
+  <ol class="breadcrumb small mb-0">
+    <li class="breadcrumb-item"><a href="{{ url_for('students.list_students') }}">Students</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{{ student.student_id }}</li>
+  </ol>
+</nav>
+
+<div class="page-header">
+  <div>
+    <h1>{{ student.full_name }}</h1>
+    <p class="page-sub">{{ student.student_id }} &middot; {{ student.course }} &middot; Semester {{ student.semester }}</p>
+  </div>
+  <div class="d-flex gap-2">
+    <a class="btn btn-primary" href="{{ url_for('students.edit', student_id=student.student_id) }}">Edit</a>
+    {{ delete_button(student, "btn btn-outline-danger") }}
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-8">
+    <section class="panel">
+      <h2 class="panel-title">Student information</h2>
+      <dl class="detail-list">
+        <div><dt>Student ID</dt><dd>{{ student.student_id }}</dd></div>
+        <div><dt>Full name</dt><dd>{{ student.full_name }}</dd></div>
+        <div><dt>Email</dt><dd><a href="mailto:{{ student.email }}">{{ student.email }}</a></dd></div>
+        <div><dt>Phone</dt><dd>{{ student.phone }}</dd></div>
+        <div><dt>Course</dt><dd>{{ student.course }}</dd></div>
+        <div><dt>Department</dt><dd>{{ student.department }}</dd></div>
+        <div><dt>Semester</dt><dd>{{ student.semester }}</dd></div>
+        <div><dt>Admission date</dt><dd>{{ student.admission_date|fmt_date }}</dd></div>
+        <div><dt>Date of birth</dt><dd>{{ student.date_of_birth|fmt_date }}</dd></div>
+        <div class="detail-wide"><dt>Address</dt><dd class="preserve-lines">{{ student.address or '-' }}</dd></div>
+      </dl>
+    </section>
+  </div>
+  <div class="col-lg-4">
+    <section class="panel">
+      <h2 class="panel-title">Academic result</h2>
+      <div class="stat-value">{{ student.marks|fmt_marks }}</div>
+      {% if student.marks is not none %}<div class="stat-note">out of 100</div>{% endif %}
+    </section>
+    <section class="panel mt-3">
+      <h2 class="panel-title">Record history</h2>
+      <dl class="detail-list single">
+        <div><dt>Created</dt><dd>{{ student.created_at|fmt_timestamp }}</dd></div>
+        <div><dt>Last updated</dt><dd>{{ student.updated_at|fmt_timestamp }}</dd></div>
+      </dl>
+    </section>
+  </div>
+</div>
+{% endblock %}

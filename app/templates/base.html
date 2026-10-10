@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>{% block title %}Student Management System{% endblock %} | Student Management System</title>
+  <link rel="icon" href="{{ url_for('static', filename='images/dhsgu-university-logo.png') }}" type="image/png">
+  <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap/bootstrap.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body class="{% block body_class %}{% endblock %}">
+<a class="visually-hidden-focusable skip-link" href="#main">Skip to main content</a>
+
+{% if current_user %}
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar" aria-label="Primary">
+    <div class="sidebar-brand">
+      <img src="{{ url_for('static', filename='images/dhsgu-university-logo.png') }}" width="42" height="42" alt="Dr. Hari Singh Gour University logo">
+      <span>Student Management</span>
+    </div>
+    <nav class="sidebar-nav" aria-label="Main navigation">
+      <a href="{{ url_for('dashboard.index') }}" class="{% if nav_section == 'dashboard' %}active{% endif %}"{% if nav_section == 'dashboard' %} aria-current="page"{% endif %}>Dashboard</a>
+      <a href="{{ url_for('students.list_students') }}" class="{% if nav_section == 'students' and request.endpoint != 'students.create' %}active{% endif %}"{% if nav_section == 'students' and request.endpoint != 'students.create' %} aria-current="page"{% endif %}>Students</a>
+      <a href="{{ url_for('students.create') }}" class="{% if request.endpoint == 'students.create' %}active{% endif %}"{% if request.endpoint == 'students.create' %} aria-current="page"{% endif %}>Add student</a>
+      <a href="{{ url_for('reports.index') }}" class="{% if nav_section == 'reports' %}active{% endif %}"{% if nav_section == 'reports' %} aria-current="page"{% endif %}>Reports</a>
+    </nav>
+    <div class="sidebar-account">
+      <div class="sidebar-user">
+        <span class="sidebar-user-label">Signed in as</span>
+        <strong>{{ current_user }}</strong>
+      </div>
+      <form method="post" action="{{ url_for('auth.logout') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn btn-outline-light btn-sm w-100">Sign out</button>
+      </form>
+    </div>
+  </aside>
+  <div class="sidebar-backdrop" data-sidebar-close></div>
+
+  <div class="app-main">
+    <header class="topbar">
+      <button type="button" class="btn btn-outline-secondary btn-sm" id="sidebar-toggle"
+              aria-controls="sidebar" aria-expanded="false">Menu</button>
+      <span class="topbar-title">Student Management System</span>
+    </header>
+{% endif %}
+
+    <main id="main" class="{{ 'app-content' if current_user else 'public-main' }}" tabindex="-1">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-stack" aria-live="polite">
+          {% for category, message in messages %}
+          <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      {% endwith %}
+      {% block content %}{% endblock %}
+    </main>
+
+{% if current_user %}
+  </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <form class="modal-content" method="post" action="" id="delete-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="modal-header">
+        <h2 class="modal-title fs-5" id="deleteModalLabel">Delete student record</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-1">You are about to permanently delete <strong id="delete-student-name">this student</strong>.</p>
+        <p class="mb-0 text-secondary">This action cannot be undone.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn btn-danger">Delete permanently</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+<script src="{{ url_for('static', filename='vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

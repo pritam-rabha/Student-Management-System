@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% from "_macros.html" import pagination, stat %}
+{% block title %}Reports{% endblock %}
+
+{% macro breakdown(title, rows, label, prefix='') %}
+<section class="panel h-100">
+  <h2 class="panel-title">{{ title }}</h2>
+  {% if rows %}
+  <div class="table-responsive">
+    <table class="table table-sm align-middle data-table">
+      <caption class="visually-hidden">{{ title }}</caption>
+      <thead><tr><th scope="col">{{ label }}</th><th scope="col" class="text-end">Students</th><th scope="col" class="text-end">Average</th><th scope="col" class="text-end">Highest</th></tr></thead>
+      <tbody>
+      {% for r in rows %}
+        <tr>
+          <td>{{ prefix }}{{ r.name }}</td>
+          <td class="text-end">{{ r.count }}</td>
+          <td class="text-end">{{ r.average|fmt_marks if r.average is not none else '-' }}</td>
+          <td class="text-end">{{ r.highest|fmt_marks if r.highest is not none else '-' }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}<p class="text-secondary mb-0">No data available.</p>{% endif %}
+</section>
+{% endmacro %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Reports</h1>
+    <p class="page-sub">Statistics calculated from the current student records.</p>
+  </div>
+</div>
+
+{% if summary.total == 0 %}
+<section class="panel empty-state">
+  <h2 class="h5">There is nothing to report yet</h2>
+  <p class="text-secondary">Reports appear once student records have been added.</p>
+  <a class="btn btn-primary" href="{{ url_for('students.create') }}">Add student</a>
+</section>
+{% else %}
+<div class="stat-row">
+  {{ stat("Total students", summary.total, summary.graded ~ " with marks, " ~ summary.ungraded ~ " without") }}
+  {{ stat("Average marks", summary.average|fmt_marks if summary.average is not none else "No marks") }}
+  {{ stat("Highest marks", summary.highest|fmt_marks if summary.highest is not none else "No marks") }}
+  {{ stat("Lowest marks", summary.lowest|fmt_marks if summary.lowest is not none else "No marks") }}
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-lg-6">
+    <section class="panel h-100">
+      <h2 class="panel-title">{{ 'Topper' if summary.toppers|length == 1 else 'Toppers' }}</h2>
+      {% if summary.toppers %}
+      <ul class="plain-list">
+        {% for s in summary.toppers %}
+        <li><a href="{{ url_for('students.detail', student_id=s.student_id) }}">{{ s.full_name }}</a>
+            <span class="text-secondary">{{ s.student_id }}, {{ s.course }}, Semester {{ s.semester }}</span>
+            <strong class="float-end">{{ s.marks|fmt_marks }}</strong></li>
+        {% endfor %}
+      </ul>
+      {% else %}<p class="text-secondary mb-0">No marks have been recorded.</p>{% endif %}
+    </section>
+  </div>
+  <div class="col-lg-6">
+    <section class="panel h-100">
+      <h2 class="panel-title">Lowest scorer{{ '' if summary.lowest_students|length == 1 else 's' }}</h2>
+      {% if summary.lowest_students %}
+      <ul class="plain-list">
+        {% for s in summary.lowest_students %}
+        <li><a href="{{ url_for('students.detail', student_id=s.student_id) }}">{{ s.full_name }}</a>
+            <span class="text-secondary">{{ s.student_id }}, {{ s.course }}, Semester {{ s.semester }}</span>
+            <strong class="float-end">{{ s.marks|fmt_marks }}</strong></li>
+        {% endfor %}
+      </ul>
+      {% else %}<p class="text-secondary mb-0">No marks have been recorded.</p>{% endif %}
+    </section>
+  </div>
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-xl-4">{{ breakdown('By course', summary.by_course, 'Course') }}</div>
+  <div class="col-xl-4">{{ breakdown('By department', summary.by_department, 'Department') }}</div>
+  <div class="col-xl-4">{{ breakdown('Semester-wise', summary.by_semester, 'Semester', 'Semester ') }}</div>
+</div>
+
+<section class="panel" id="rankings">
+  <h2 class="panel-title">Rankings and filtered list</h2>
+  <form method="get" action="{{ url_for('reports.index') }}#rankings" class="filter-bar mb-3" aria-label="Filter rankings">
+    <div class="row g-2 align-items-end">
+      <div class="col-6 col-lg-3">
+        <label for="course" class="form-label">Course</label>
+        <select class="form-select" id="course" name="course">
+          <option value="">All courses</option>
+          {% for c in options.courses %}<option value="{{ c }}"{% if c|lower == filters.course|lower %} selected{% endif %}>{{ c }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-6 col-lg-3">
+        <label for="department" class="form-label">Department</label>
+        <select class="form-select" id="department" name="department">
+          <option value="">All departments</option>
+          {% for d in options.departments %}<option value="{{ d }}"{% if d|lower == filters.department|lower %} selected{% endif %}>{{ d }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-6 col-lg-3">
+        <label for="semester" class="form-label">Semester</label>
+        <select class="form-select" id="semester" name="semester">
+          <option value="">All semesters</option>
+          {% for n in options.semesters %}<option value="{{ n }}"{% if n|string == filters.semester %} selected{% endif %}>Semester {{ n }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-6 col-lg-3 d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Apply</button>
+        <a class="btn btn-outline-secondary" href="{{ url_for('reports.index') }}#rankings">Reset</a>
+      </div>
+    </div>
+  </form>
+
+  <p class="small text-secondary">
+    {{ ranking_stats.count }} student{{ '' if ranking_stats.count == 1 else 's' }} in this list.
+    {% if ranking_stats.average is not none %}
+      Average {{ ranking_stats.average|fmt_marks }}, highest {{ ranking_stats.highest|fmt_marks }}, lowest {{ ranking_stats.lowest|fmt_marks }}.
+    {% else %}No marks recorded for this list.{% endif %}
+    Students with equal marks share a rank. Students without marks are not ranked.
+  </p>
+
+  {% if page['items'] %}
+  <div class="table-responsive">
+    <table class="table align-middle data-table">
+      <caption class="visually-hidden">Student rankings by marks</caption>
+      <thead><tr><th scope="col">Rank</th><th scope="col">ID</th><th scope="col">Name</th><th scope="col">Course</th><th scope="col">Semester</th><th scope="col" class="text-end">Marks</th></tr></thead>
+      <tbody>
+      {% for row in page['items'] %}
+        <tr>
+          <td>{{ row.rank if row.rank else '-' }}</td>
+          <td>{{ row.student.student_id }}</td>
+          <td><a href="{{ url_for('students.detail', student_id=row.student.student_id) }}">{{ row.student.full_name }}</a></td>
+          <td>{{ row.student.course }}</td>
+          <td>{{ row.student.semester }}</td>
+          <td class="text-end">{{ row.student.marks|fmt_marks if row.student.marks is not none else 'Not recorded' }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="table-footer px-0">
+    <span class="small text-secondary">Showing {{ page.first }} to {{ page.last }} of {{ page.total }}</span>
+    {{ pagination(page, 'reports.index', query_args) }}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <h3 class="h6">No students match these filters</h3>
+    <a class="btn btn-outline-secondary" href="{{ url_for('reports.index') }}#rankings">Clear filters</a>
+  </div>
+  {% endif %}
+</section>
+{% endif %}
+{% endblock %}

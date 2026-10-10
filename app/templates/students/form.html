@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field %}
+{% set editing = mode == 'edit' %}
+{% block title %}{{ 'Edit student' if editing else 'Add student' }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>{{ 'Edit student' if editing else 'Add student' }}</h1>
+    <p class="page-sub">{% if editing %}Update the record for {{ student.full_name }}.{% else %}Fields marked with an asterisk are required.{% endif %}</p>
+  </div>
+  <a class="btn btn-outline-secondary" href="{{ url_for('students.detail', student_id=student.student_id) if editing else url_for('students.list_students') }}">Cancel</a>
+</div>
+
+{% if errors %}
+<div class="alert alert-danger" role="alert">
+  Please correct the {{ errors|length }} highlighted field{{ '' if errors|length == 1 else 's' }} below.
+</div>
+{% endif %}
+
+<form method="post" class="panel needs-validation" novalidate
+      action="{{ url_for('students.edit', student_id=student.student_id) if editing else url_for('students.create') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <fieldset class="form-section">
+    <legend>Identity</legend>
+    <div class="row g-3">
+      {% if editing %}
+        {{ field('student_id', 'Student ID', form, errors, readonly=True, help='The ID cannot be changed after creation.') }}
+      {% else %}
+        {{ field('student_id', 'Student ID', form, errors, required=True,
+                 help='2 to 20 letters, digits, hyphens or underscores. Stored in upper case.',
+                 attrs={'pattern': '[A-Za-z0-9][A-Za-z0-9_\\-]{1,19}', 'maxlength': '20', 'autocomplete': 'off',
+                        'data-error-message': 'Use 2 to 20 letters, digits, hyphens or underscores.'}) }}
+      {% endif %}
+      {{ field('full_name', 'Full name', form, errors, required=True,
+               attrs={'minlength': '2', 'maxlength': '100', 'autocomplete': 'off'}) }}
+    </div>
+  </fieldset>
+
+  <fieldset class="form-section">
+    <legend>Contact</legend>
+    <div class="row g-3">
+      {{ field('email', 'Email address', form, errors, type='email', required=True, attrs={'maxlength': '254'}) }}
+      {{ field('phone', 'Phone number', form, errors, type='tel', required=True,
+               help='7 to 15 digits. A leading + and spaces are allowed.',
+               attrs={'pattern': '\\+?[0-9\\s\\(\\)\\.\\-]{7,25}', 'maxlength': '25',
+                      'data-error-message': 'Enter a phone number with 7 to 15 digits.'}) }}
+    </div>
+  </fieldset>
+
+  <fieldset class="form-section">
+    <legend>Academic details</legend>
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label for="course" class="form-label">Course or program <span class="text-danger" aria-hidden="true">*</span><span class="visually-hidden">(required)</span></label>
+        <input type="text" class="form-control{% if errors.course %} is-invalid{% endif %}" id="course" name="course"
+               value="{{ form.get('course', '') }}" list="course-options" required minlength="2" maxlength="80" autocomplete="off">
+        <datalist id="course-options">{% for c in options.courses %}<option value="{{ c }}">{% endfor %}</datalist>
+        <div class="invalid-feedback">{{ errors.get('course', '') }}</div>
+      </div>
+      <div class="col-md-6">
+        <label for="department" class="form-label">Department <span class="text-danger" aria-hidden="true">*</span><span class="visually-hidden">(required)</span></label>
+        <input type="text" class="form-control{% if errors.department %} is-invalid{% endif %}" id="department" name="department"
+               value="{{ form.get('department', '') }}" list="department-options" required minlength="2" maxlength="80" autocomplete="off">
+        <datalist id="department-options">{% for d in options.departments %}<option value="{{ d }}">{% endfor %}</datalist>
+        <div class="invalid-feedback">{{ errors.get('department', '') }}</div>
+      </div>
+      <div class="col-md-4">
+        <label for="semester" class="form-label">Semester <span class="text-danger" aria-hidden="true">*</span><span class="visually-hidden">(required)</span></label>
+        <select class="form-select{% if errors.semester %} is-invalid{% endif %}" id="semester" name="semester" required>
+          <option value="">Select semester</option>
+          {% for n in semester_range %}<option value="{{ n }}"{% if form.get('semester')|string == n|string %} selected{% endif %}>Semester {{ n }}</option>{% endfor %}
+        </select>
+        <div class="invalid-feedback">{{ errors.get('semester', 'Select a semester.') }}</div>
+      </div>
+      {{ field('admission_date', 'Admission date', form, errors, col='col-md-4', type='date', required=True, attrs={'max': today}) }}
+      {{ field('marks', 'Marks (0 to 100)', form, errors, col='col-md-4', type='number',
+               help='Optional. Up to two decimal places.',
+               attrs={'min': '0', 'max': '100', 'step': '0.01', 'inputmode': 'decimal',
+                      'data-error-message': 'Marks must be a number between 0 and 100.'}) }}
+    </div>
+  </fieldset>
+
+  <fieldset class="form-section">
+    <legend>Personal details</legend>
+    <div class="row g-3">
+      {{ field('date_of_birth', 'Date of birth', form, errors, type='date', help='Optional.', attrs={'max': today}) }}
+      <div class="col-12">
+        <label for="address" class="form-label">Address</label>
+        <textarea class="form-control{% if errors.address %} is-invalid{% endif %}" id="address" name="address" rows="3" maxlength="300">{{ form.get('address', '') }}</textarea>
+        <div class="invalid-feedback">{{ errors.get('address', '') }}</div>
+        <div class="form-text">Optional. Up to 300 characters.</div>
+      </div>
+    </div>
+  </fieldset>
+
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary">{{ 'Save changes' if editing else 'Add student' }}</button>
+    <a class="btn btn-outline-secondary" href="{{ url_for('students.detail', student_id=student.student_id) if editing else url_for('students.list_students') }}">Cancel</a>
+  </div>
+</form>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Sign in{% endblock %}
+{% block body_class %}login-page{% endblock %}
+{% block content %}
+<div class="login-card">
+  <div class="login-brand">
+    <img src="{{ url_for('static', filename='images/dhsgu-university-logo.png') }}" width="64" height="64" alt="Dr. Hari Singh Gour University logo">
+    <div>
+      <h1 class="h4 mb-0">Student Management System</h1>
+      <p class="text-secondary mb-0 small">Administrator sign in</p>
+    </div>
+  </div>
+
+  {% if error %}
+  <div class="alert alert-danger" role="alert">{{ error }}</div>
+  {% endif %}
+
+  <form method="post" action="{{ url_for('auth.login') }}" class="needs-validation" novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="next" value="{{ next_url }}">
+    <div class="mb-3">
+      <label for="username" class="form-label">Username</label>
+      <input type="text" class="form-control" id="username" name="username" value="{{ username }}"
+             autocomplete="username" autocapitalize="none" spellcheck="false" required autofocus>
+      <div class="invalid-feedback">Enter your username.</div>
+    </div>
+    <div class="mb-4">
+      <label for="password" class="form-label">Password</label>
+      <input type="password" class="form-control" id="password" name="password"
+             autocomplete="current-password" required>
+      <div class="invalid-feedback">Enter your password.</div>
+    </div>
+    <button type="submit" class="btn btn-primary w-100">Sign in</button>
+  </form>
+</div>
+{% endblock %}

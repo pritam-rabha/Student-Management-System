@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% from "_macros.html" import pagination, delete_button %}
+{% block title %}Students{% endblock %}
+
+{% macro sort_header(label, key, align='') %}
+  {% set next_order = 'desc' if (sort == key and order == 'asc') else 'asc' %}
+  <th scope="col" class="{{ align }}" aria-sort="{{ ('ascending' if order == 'asc' else 'descending') if sort == key else 'none' }}">
+    <a class="sort-link{% if sort == key %} active{% endif %}" href="{{ url_for('students.list_students', **dict(query_args, sort=key, order=next_order, page=1)) }}">{{ label }}{% if sort == key %}<span class="visually-hidden"> sorted {{ 'ascending' if order == 'asc' else 'descending' }}</span><span aria-hidden="true"> {{ '&#9650;'|safe if order == 'asc' else '&#9660;'|safe }}</span>{% endif %}</a>
+  </th>
+{% endmacro %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Students</h1>
+    <p class="page-sub">{{ result.total }} record{{ '' if result.total == 1 else 's' }}{% if has_filters %} match your filters{% endif %}.</p>
+  </div>
+  <a class="btn btn-primary" href="{{ url_for('students.create') }}">Add student</a>
+</div>
+
+<form method="get" action="{{ url_for('students.list_students') }}" class="panel filter-bar" role="search" aria-label="Search and filter students">
+  <div class="row g-2 align-items-end">
+    <div class="col-12 col-lg-4">
+      <label for="q" class="form-label">Search</label>
+      <input type="search" class="form-control" id="q" name="q" value="{{ filters.search }}" maxlength="100" placeholder="ID, name, email or course">
+    </div>
+    <div class="col-6 col-lg-2">
+      <label for="course" class="form-label">Course</label>
+      <select class="form-select" id="course" name="course">
+        <option value="">All courses</option>
+        {% for c in options.courses %}<option value="{{ c }}"{% if c|lower == filters.course|lower %} selected{% endif %}>{{ c }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label for="department" class="form-label">Department</label>
+      <select class="form-select" id="department" name="department">
+        <option value="">All departments</option>
+        {% for d in options.departments %}<option value="{{ d }}"{% if d|lower == filters.department|lower %} selected{% endif %}>{{ d }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label for="semester" class="form-label">Semester</label>
+      <select class="form-select" id="semester" name="semester">
+        <option value="">All semesters</option>
+        {% for n in options.semesters %}<option value="{{ n }}"{% if n|string == filters.semester %} selected{% endif %}>Semester {{ n }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label for="sort" class="form-label">Sort by</label>
+      <select class="form-select" id="sort" name="sort">
+        <option value="name"{% if sort == 'name' %} selected{% endif %}>Name</option>
+        <option value="id"{% if sort == 'id' %} selected{% endif %}>Student ID</option>
+        <option value="marks"{% if sort == 'marks' %} selected{% endif %}>Marks</option>
+      </select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label for="order" class="form-label">Order</label>
+      <select class="form-select" id="order" name="order">
+        <option value="asc"{% if order == 'asc' %} selected{% endif %}>Ascending</option>
+        <option value="desc"{% if order == 'desc' %} selected{% endif %}>Descending</option>
+      </select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label for="per_page" class="form-label">Per page</label>
+      <select class="form-select" id="per_page" name="per_page">
+        {% for n in per_page_choices %}<option value="{{ n }}"{% if n == per_page %} selected{% endif %}>{{ n }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="col-12 col-lg-auto d-flex gap-2">
+      <button type="submit" class="btn btn-primary">Apply</button>
+      <a class="btn btn-outline-secondary" href="{{ url_for('students.list_students') }}">Reset</a>
+    </div>
+  </div>
+</form>
+
+<section class="panel p-0">
+  {% if result['items'] %}
+  <div class="table-responsive">
+    <table class="table align-middle data-table mb-0">
+      <caption class="visually-hidden">Student directory</caption>
+      <thead>
+        <tr>
+          {{ sort_header('ID', 'id') }}
+          {{ sort_header('Name', 'name') }}
+          <th scope="col">Course</th>
+          <th scope="col">Department</th>
+          <th scope="col">Semester</th>
+          {{ sort_header('Marks', 'marks', 'text-end') }}
+          <th scope="col" class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for s in result['items'] %}
+        <tr>
+          <td class="text-nowrap">{{ s.student_id }}</td>
+          <td><a href="{{ url_for('students.detail', student_id=s.student_id) }}">{{ s.full_name }}</a><div class="small text-secondary">{{ s.email }}</div></td>
+          <td>{{ s.course }}</td>
+          <td>{{ s.department }}</td>
+          <td>{{ s.semester }}</td>
+          <td class="text-end">{{ s.marks|fmt_marks if s.marks is not none else '-' }}</td>
+          <td class="text-end text-nowrap">
+            <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('students.detail', student_id=s.student_id) }}">View</a>
+            <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('students.edit', student_id=s.student_id) }}">Edit</a>
+            {{ delete_button(s) }}
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="table-footer">
+    <span class="small text-secondary">Showing {{ result.first }} to {{ result.last }} of {{ result.total }}</span>
+    {{ pagination(result, 'students.list_students', query_args) }}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    {% if has_filters %}
+      <h2 class="h5">No students match your search</h2>
+      <p class="text-secondary">Try a different search term or remove some filters.</p>
+      <a class="btn btn-outline-secondary" href="{{ url_for('students.list_students') }}">Clear search and filters</a>
+    {% else %}
+      <h2 class="h5">No students yet</h2>
+      <p class="text-secondary">Student records you add will appear here.</p>
+      <a class="btn btn-primary" href="{{ url_for('students.create') }}">Add student</a>
+    {% endif %}
+  </div>
+  {% endif %}
+</section>
+{% endblock %}
