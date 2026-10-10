@@ -6,8 +6,9 @@ A web-based administration system for a small educational institution, built wit
 
 **Author:** Pritam Rabha  
 **Programme:** MCA, 3rd Semester  
+**Project Guide:** Dr. Pangambam Sendash Singh  
 **Institution:** Dr. Hari Singh Gour Vishwavidyalaya, Sagar, Madhya Pradesh  
-**Project Guide:** Dr. Pangambam Sendash Singh
+
 
 > **Academic Project Disclaimer:** This Student Management System was developed independently by a student as part of an academic programming assignment. It is not an official application of Dr. Hari Singh Gour Vishwavidyalaya. The university name and logo, if displayed, are used for academic identification only and do not imply university endorsement.
 
@@ -331,7 +332,7 @@ Records are stored in `data/students.json` (or `$DATA_DIR/students.json`):
 
     {
 
-      "student_id": "MCA26001",
+      "student_id": "Y25271045",
 
       "full_name": "Aarav Sharma",
 
