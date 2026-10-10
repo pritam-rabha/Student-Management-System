@@ -5,9 +5,9 @@
 A web-based administration system for a small educational institution, built with Flask and JSON file storage. It was written for an MCA Python Programming assignment.
 
 **Author:** Pritam Rabha  
-**Programme:** MCA, 3rd Semester  
-**Institution:** Dr. Hari Singh Gour Vishwavidyalaya, Sagar, Madhya Pradesh  
+**Programme:** MCA, 3rd Semester
 **Project Guide:** Dr. Pangambam Sendash Singh
+**Institution:** Dr. Hari Singh Gour Vishwavidyalaya, Sagar, Madhya Pradesh  
 
 > **Academic Project Disclaimer:** This Student Management System was developed independently by a student as part of an academic programming assignment. It is not an official application of Dr. Hari Singh Gour Vishwavidyalaya. The university name and logo, if displayed, are used for academic identification only and do not imply university endorsement.
 
