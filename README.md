@@ -4,6 +4,13 @@
 
 A web-based administration system for a small educational institution, built with Flask and JSON file storage. It was written for an MCA Python Programming assignment.
 
+## Live Demo
+
+**Live Application:** [Student Management System](https://student-management-system-g79i.onrender.com)
+
+
+
+
 **Author:** Pritam Rabha  
 **Programme:** MCA, 3rd Semester  
 **Project Guide:** Dr. Pangambam Sendash Singh  
