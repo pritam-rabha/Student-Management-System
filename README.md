@@ -1,67 +1,42 @@
 # Student Management System
 
+A responsive, web-based administration system for a small educational institution, built with Flask and JSON file storage for an MCA Python Programming assignment.
 
+## Live demo
 
-A web-based administration system for a small educational institution, built with Flask and JSON file storage. It was written for an MCA Python Programming assignment.
+**Live application:** [Student Management System](https://student-management-system-g79i.onrender.com)
 
-## Live Demo
+> **Academic project disclaimer:** This project was developed independently for an academic programming assignment. It is not an official application of Dr. Hari Singh Gour Vishwavidyalaya. The university name and logo, if displayed, are used for academic identification only and do not imply university endorsement.
 
-**Live Application:** [Student Management System](https://student-management-system-g79i.onrender.com)
+## Author and academic details
 
-
-
-
-**Author:** Pritam Rabha  
-**Programme:** MCA, 3rd Semester  
-**Project Guide:** Dr. Pangambam Sendash Singh  
-**Institution:** Dr. Hari Singh Gour Vishwavidyalaya, Sagar, Madhya Pradesh  
-
-
-> **Academic Project Disclaimer:** This Student Management System was developed independently by a student as part of an academic programming assignment. It is not an official application of Dr. Hari Singh Gour Vishwavidyalaya. The university name and logo, if displayed, are used for academic identification only and do not imply university endorsement.
-
-
-
-An administrator signs in and can manage student records, search and filter the directory, view a dashboard with charts, and run reports on enrolment and marks.
-
-
+| Field | Details |
+|---|---|
+| Author | Pritam Rabha |
+| Programme | MCA, 3rd Semester |
+| Course | Python Programming |
+| Project guide | Dr. Pangambam Sendash Singh |
+| Institution | Dr. Hari Singh Gour Vishwavidyalaya, Sagar, Madhya Pradesh |
 
 ## Contents
 
-
-
 1. [Features](#features)
-
 2. [Technology](#technology)
-
 3. [Project structure](#project-structure)
-
 4. [Run locally](#run-locally)
-
 5. [Administrator account setup](#administrator-account-setup)
-
 6. [Environment variables](#environment-variables)
-
 7. [Data storage](#data-storage)
-
 8. [Important: storage on Render's free plan](#important-storage-on-renders-free-plan)
-
 9. [Application routes](#application-routes)
-
 10. [Validation rules](#validation-rules)
-
 11. [Security](#security)
-
 12. [Testing](#testing)
-
 13. [Upload to GitHub](#upload-to-github)
-
 14. [Deploy to Render](#deploy-to-render)
-
 15. [Troubleshooting](#troubleshooting)
-
 16. [Known limitations](#known-limitations)
-
-
+17. [Credits and copyright](#credits-and-copyright)
 
 ## Features
 
@@ -106,61 +81,34 @@ Bootstrap and Chart.js are bundled under `app/static/vendor/` (with their MIT li
 
 
 ```
-
 Student_Management_System/
-
-    run.py                  Local development entry point
-
-    wsgi.py                 Production entry point (gunicorn wsgi:app)
-
-    config.py               Configuration read from environment variables
-
-    requirements.txt        Runtime dependencies
-
-    requirements-dev.txt    Runtime plus pytest
-
-    render.yaml             Render blueprint
-
-    pytest.ini
-
-    .env.example            Variable names with placeholder values
-
-    .gitignore
-
-    README.md
-
-    app/
-
-        __init__.py         Application factory, hooks, error handlers
-
-        exceptions.py       Domain exceptions
-
-        routes/             Flask blueprints: auth, dashboard, students, reports
-
-        services/           Business logic: students, reports, authentication
-
-        storage/            Repository interface, JSON store, demo-data seeding
-
-        utils/              Validators, CSRF, pagination, rate limiting, formatting
-
-        templates/          Jinja2 templates
-
-        static/             css/, js/, images/, vendor/
-
-    data/
-
-        sample_data/        students_sample.json (demonstration data)
-
-    scripts/
-
-        create_admin_hash.py     Generate ADMIN_PASSWORD_HASH
-
-        seed_sample_data.py      Load demo data on request
-
-        generate_sample_data.py  Rebuild the demo data file
-
-    tests/                  pytest suite
-
+├── run.py                      # Local development entry point
+├── wsgi.py                     # Production entry point (gunicorn wsgi:app)
+├── config.py                   # Environment-based configuration
+├── requirements.txt            # Runtime dependencies
+├── requirements-dev.txt        # Runtime dependencies plus pytest
+├── render.yaml                 # Render Blueprint
+├── pytest.ini
+├── .env.example                # Placeholder environment variables
+├── .gitignore
+├── README.md
+├── app/
+│   ├── __init__.py             # Application factory, hooks, error handlers
+│   ├── exceptions.py           # Domain exceptions
+│   ├── routes/                 # Auth, dashboard, students, reports
+│   ├── services/               # Student, report, authentication logic
+│   ├── storage/                # Repository interface, JSON store, seeding
+│   ├── utils/                  # Validators, CSRF, pagination, rate limiting
+│   ├── templates/              # Jinja2 templates
+│   └── static/                 # CSS, JavaScript, images, vendor assets
+├── data/
+│   └── sample_data/
+│       └── students_sample.json # Demonstration data
+├── scripts/
+│   ├── create_admin_hash.py    # Generate ADMIN_PASSWORD_HASH
+│   ├── seed_sample_data.py     # Load demo data on request
+│   └── generate_sample_data.py # Rebuild the demo data file
+└── tests/                      # pytest suite
 ```
 
 
@@ -183,7 +131,7 @@ Requires Python 3.11 or newer.
 
 ```bash
 
-\# 1. Create and activate a virtual environment
+# 1. Create and activate a virtual environment
 
 python -m venv .venv
 
@@ -191,25 +139,25 @@ source .venv/bin/activate          # Windows: .venv\Scripts\activate
 
 
 
-\# 2. Install dependencies
+# 2. Install dependencies
 
 pip install -r requirements-dev.txt
 
 
 
-\# 3. Create your local configuration
+# 3. Create your local configuration
 
 cp .env.example .env               # Windows: copy .env.example .env
 
 
 
-\# 4. Create the administrator password hash (see next section) and paste it into .env
+# 4. Create the administrator password hash (see next section) and paste it into .env
 
 python scripts/create_admin_hash.py
 
 
 
-\# 5. Start the development server
+# 5. Start the development server
 
 python run.py
 
@@ -383,17 +331,17 @@ How the storage layer protects the data:
 
 
 
-- **\*\*Atomic writes.\*\*** Each save writes a temporary file in the same directory, flushes and fsyncs it, then replaces the real file with `os.replace`. A crash mid-write cannot leave a half-written file.
+- ****Atomic writes.**** Each save writes a temporary file in the same directory, flushes and fsyncs it, then replaces the real file with `os.replace`. A crash mid-write cannot leave a half-written file.
 
-- **\*\*Serialised writers.\*\*** Read-modify-write operations run under a thread lock and, on Linux and macOS, an `flock` on `students.json.lock`.
+- ****Serialised writers.**** Read-modify-write operations run under a thread lock and, on Linux and macOS, an `flock` on `students.json.lock`.
 
-- **\*\*Missing file.\*\*** Treated as an empty data set.
+- ****Missing file.**** Treated as an empty data set.
 
-- **\*\*Malformed or corrupted file.\*\*** The file is renamed to `students.json.corrupt-\<timestamp>` (nothing is lost) and the application starts with an empty set instead of crashing. The event is logged.
+- ****Malformed or corrupted file.**** The file is renamed to `students.json.corrupt-<timestamp>` (nothing is lost) and the application starts with an empty set instead of crashing. The event is logged.
 
-- **\*\*Demo data never overwrites.\*\*** At startup, sample data is loaded only when `students.json` does not exist at all. An existing file, even an empty list, is left alone. `python scripts/seed_sample_data.py --force` replaces the file on request and keeps a timestamped `.bak` copy.
+- ****Demo data never overwrites.**** At startup, sample data is loaded only when `students.json` does not exist at all. An existing file, even an empty list, is left alone. `python scripts/seed_sample_data.py --force` replaces the file on request and keeps a timestamped `.bak` copy.
 
-- **\*\*No user-controlled paths.\*\*** The file location comes only from configuration. Student IDs are only used as lookup keys, never as file names.
+- ****No user-controlled paths.**** The file location comes only from configuration. Student IDs are only used as lookup keys, never as file names.
 
 
 
@@ -405,7 +353,7 @@ To move to a database later, implement the `StudentRepository` interface (`all`,
 
 
 
-Render's free web service has an **\*\*ephemeral filesystem\*\***. Files written while the service runs, including `students.json`, can be lost when the service restarts, is redeployed, or spins down after inactivity. **\*\*JSON files on the free plan are not permanent storage.\*\***
+Render's free web service has an ****ephemeral filesystem****. Files written while the service runs, including `students.json`, can be lost when the service restarts, is redeployed, or spins down after inactivity. ****JSON files on the free plan are not permanent storage.****
 
 
 
@@ -457,11 +405,11 @@ All routes except `/login`, `/healthz` and static files require an authenticated
 
 | GET, POST | `/students/new` | Add a student |
 
-| GET | `/students/\<id>` | Student details |
+| GET | `/students/<id>` | Student details |
 
-| GET, POST | `/students/\<id>/edit` | Edit a student (ID cannot change) |
+| GET, POST | `/students/<id>/edit` | Edit a student (ID cannot change) |
 
-| POST | `/students/\<id>/delete` | Delete a student |
+| POST | `/students/<id>/delete` | Delete a student |
 
 | GET | `/reports/` | Reports, with `course`, `department`, `semester`, `page` |
 
@@ -541,7 +489,7 @@ python -m pytest
 
 
 
-Result of the last run: **\*\*163 passed\*\***.
+Result of the last run: ****163 passed****.
 
 
 
@@ -585,7 +533,7 @@ git commit -m "Student Management System"
 
 git branch -M main
 
-git remote add origin https\://github.com/\<your-username>/\<your-repository>.git
+git remote add origin https\://github.com/<your-username>/<your-repository>.git
 
 git push -u origin main
 
@@ -605,7 +553,7 @@ The repository includes `render.yaml`, so you can deploy as a Blueprint.
 
 
 
-**\*\*Option A: Blueprint\*\***
+****Option A: Blueprint****
 
 
 
@@ -619,7 +567,7 @@ The repository includes `render.yaml`, so you can deploy as a Blueprint.
 
 
 
-**\*\*Option B: manual web service\*\***
+****Option B: manual web service****
 
 
 
@@ -651,17 +599,17 @@ Render provides the `PORT` variable and the HTTPS certificate. Gunicorn binds to
 
 
 
-- **\*\*"Sign-in is not available because the administrator account has not been set up."\*\*** `ADMIN_PASSWORD_HASH` is missing. Generate it and set it.
+- ****"Sign-in is not available because the administrator account has not been set up."**** `ADMIN_PASSWORD_HASH` is missing. Generate it and set it.
 
-- **\*\*Cannot stay signed in locally.\*\*** `APP_ENV=production` makes cookies Secure, so they are dropped over plain HTTP. Use `APP_ENV=development` locally.
+- ****Cannot stay signed in locally.**** `APP_ENV=production` makes cookies Secure, so they are dropped over plain HTTP. Use `APP_ENV=development` locally.
 
-- **\*\*Application refuses to start with `SECRET_KEY must be set`.\*\*** Set `SECRET_KEY` when `APP_ENV=production`.
+- ****Application refuses to start with `SECRET_KEY must be set`.**** Set `SECRET_KEY` when `APP_ENV=production`.
 
-- **\*\*Records vanished on Render.\*\*** Expected on the free plan; see the storage section.
+- ****Records vanished on Render.**** Expected on the free plan; see the storage section.
 
-- **\*\*A `students.json.corrupt-\<timestamp>` file appeared.\*\*** The data file was unreadable and was set aside. Inspect or repair that file and copy valid records back.
+- ****A `students.json.corrupt-<timestamp>` file appeared.**** The data file was unreadable and was set aside. Inspect or repair that file and copy valid records back.
 
-- **\*\*`$` characters in the hash are altered in a `.env` file.\*\*** Keep the value inside single quotes.
+- ****`$` characters in the hash are altered in a `.env` file.**** Keep the value inside single quotes.
 
 
 
@@ -678,3 +626,16 @@ Render provides the `PORT` variable and the HTTPS certificate. Gunicorn binds to
 - Email addresses are not required to be unique, because the assignment only requires unique student IDs.
 
 - The interface was tested through automated requests against a running Gunicorn server. It has not been checked in a real browser on different screen sizes, and the deployment files have not been run on Render itself.
+
+## Credits and copyright
+
+**Project:** Student Management System  
+**Developer:** Pritam Rabha  
+**Academic context:** MCA, 3rd Semester — Python Programming  
+**Project guide:** Dr. Pangambam Sendash Singh  
+**Institution:** Dr. Hari Singh Gour Vishwavidyalaya, Sagar, Madhya Pradesh  
+**Live demo:** [Student Management System](https://student-management-system-g79i.onrender.com)
+
+Copyright © 2026 Pritam Rabha. All rights reserved.
+
+This project is intended for educational and academic use. It is not an official university application and should not be used to store real student records without appropriate security, privacy, and data-persistence safeguards.
